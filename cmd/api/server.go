@@ -5,6 +5,8 @@ import (
 	"firebond-ex-api.com/cmd/api/internal"
 	"firebond-ex-api.com/cmd/api/routes"
 	"firebond-ex-api.com/db/actions/firebondmongo"
+	"firebond-ex-api.com/services"
+	"firebond-ex-api.com/services/cc"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,6 +28,9 @@ func serveApp(dbClient *mongo.Database, logger zerolog.Logger) {
 	app := internal.Application{
 		Repositories: repositories,
 		Logger:       logger,
+		Services: services.Services{
+			CC: cc.NewExchangeApiConn(os.Getenv("CRYPTO_COMPARE_API_KEY"), logger),
+		},
 	}
 
 	router := gin.Default()
