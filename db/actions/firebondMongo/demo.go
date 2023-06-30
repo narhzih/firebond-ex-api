@@ -4,8 +4,8 @@ import (
 	"context"
 	"firebond-ex-api.com/db/models"
 	"firebond-ex-api.com/db/repository"
-	"fmt"
 	"github.com/rs/zerolog"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 )
@@ -30,6 +30,23 @@ func (act demoActions) CreateDemoData(demoData models.Demo) (models.Demo, error)
 	if err != nil {
 		return models.Demo{}, err
 	}
-	act.Logger.Info().Msg(fmt.Sprint(result))
-	return models.Demo{}, nil
+	demoData, err = act.GetDemoData(result.InsertedID)
+	if err != nil {
+		return models.Demo{}, err
+	}
+	return demoData, nil
+}
+
+func (act demoActions) GetDemoData(ID interface{}) (models.Demo, error) {
+	var demo models.Demo
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	data := act.Collection.FindOne(ctx, bson.M{"_id": ID})
+	err := data.Decode(&demo)
+	if err != nil {
+		return models.Demo{}, err
+	}
+
+	return demo, nil
 }

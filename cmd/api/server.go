@@ -5,7 +5,6 @@ import (
 	"firebond-ex-api.com/cmd/api/internal"
 	"firebond-ex-api.com/cmd/api/routes"
 	"firebond-ex-api.com/db/actions/firebondMongo"
-	"firebond-ex-api.com/db/repository"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -20,12 +19,10 @@ import (
 )
 
 func serveApp(dbClient *mongo.Database, logger zerolog.Logger) {
-	repositories := repository.Repositories{
-		Demo: firebondMongo.NewDemoActions(dbClient, logger),
-	}
+	repositories := firebondMongo.NewRepositories(dbClient, logger)
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-
 	app := internal.Application{
 		Repositories: repositories,
 		Logger:       logger,
@@ -40,6 +37,7 @@ func serveApp(dbClient *mongo.Database, logger zerolog.Logger) {
 	appPort, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
 		logger.Err(err).Msg("Unable to bind port")
+		os.Exit(1)
 	}
 	addr := fmt.Sprintf(":%d", appPort)
 	srv := &http.Server{
@@ -65,6 +63,4 @@ func serveApp(dbClient *mongo.Database, logger zerolog.Logger) {
 		logger.Fatal().Msg(fmt.Sprintf("Server forced to shutdown: %s", err))
 	}
 	logger.Info().Msg("exiting server")
-
-	// run the reset of the application and set up the routes
 }

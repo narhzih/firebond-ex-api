@@ -1,7 +1,9 @@
 package models
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type Demo struct {
-	ID       string `json:"id" bson:"id"`
-	Email    string `json:"email" bson:"email"`
-	FullName string `json:"fullName" bson:"fullName"`
+	ID       primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Email    string             `json:"email" bson:"email"`
+	FullName string             `json:"fullName" bson:"fullName"`
 }
