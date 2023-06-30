@@ -45,13 +45,13 @@ func (act rateActions) CreateCryptoToFiatRateData(data models.Rate) (models.Rate
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	result, err := act.Collection.InsertOne(ctx, data)
+	_, err := act.Collection.InsertOne(ctx, data)
 	if err != nil {
 		return models.Rate{}, err
 	}
-	rate, err := act.GetCryptoRatesBySymbol(result.InsertedID)
+	rate, err := act.GetCryptoRatesBySymbol(data.Symbol)
 	if err != nil {
-		return models.Rate{}, nil
+		return models.Rate{}, err
 	}
 	return rate, nil
 }
