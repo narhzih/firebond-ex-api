@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/rs/zerolog"
 	"github.com/tryvium-travels/memongo"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -37,6 +38,7 @@ func newTestDb(t *testing.T) *mongo.Database {
 	})
 
 	mongoDatabase := mongoClient.Database(memongo.RandomDatabase())
+	populateDB(mongoDatabase)
 	return mongoDatabase
 }
 
@@ -53,4 +55,25 @@ func connectMongo(mongoUri string) (*mongo.Client, error) {
 		panic(err)
 	}
 	return mongoClient, nil
+}
+
+func populateDB(database *mongo.Database) {
+
+	// populate rate data
+	rateCollection := database.Collection("rate")
+	_, err := rateCollection.InsertMany(context.TODO(), []interface{}{
+		bson.M{"symbol": "BTC", "fiatPrices": map[string]interface{}{
+			"USD": 30000.5,
+			"GBP": 38000.0,
+			"EUR": 35000.0,
+		}},
+		bson.M{"symbol": "ETH", "fiatPrices": map[string]interface{}{
+			"USD": 30000.5,
+			"GBP": 38000.0,
+			"EUR": 35000.0,
+		}},
+	})
+	if err != nil {
+		panic(err)
+	}
 }

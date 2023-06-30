@@ -13,6 +13,7 @@ import (
 
 var (
 	ErrFiatRateToSymbolNotFound = fmt.Errorf("could not find the specified fiat rate for symbol")
+	ErrNoDocuments              = fmt.Errorf("no documents found")
 )
 
 type rateActions struct {
@@ -21,7 +22,7 @@ type rateActions struct {
 }
 
 func NewRateActions(mongoDatabase *mongo.Database, logger zerolog.Logger) repository.RateRepository {
-	collection := mongoDatabase.Collection("crypto")
+	collection := mongoDatabase.Collection("rate")
 	return rateActions{Collection: collection, Logger: logger}
 }
 
@@ -34,6 +35,9 @@ func (act rateActions) GetCryptoRatesBySymbol(symbol interface{}) (models.Rate, 
 	data := act.Collection.FindOne(ctx, bson.M{"symbol": symbol})
 	err := data.Decode(&rate)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return models.Rate{}, ErrNoDocuments
+		}
 		return models.Rate{}, err
 	}
 
