@@ -23,4 +23,5 @@ func BootRoutes(app internal.Application, routeGroup *gin.RouterGroup) {
 			},
 		})
 	})
+	setupRateRoutes(app, routeGroup)
 }

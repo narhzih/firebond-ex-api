@@ -4,7 +4,7 @@ import (
 	"context"
 	"firebond-ex-api.com/cmd/api/internal"
 	"firebond-ex-api.com/cmd/api/routes"
-	"firebond-ex-api.com/db/actions/firebondMongo"
+	"firebond-ex-api.com/db/actions/firebondmongo"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,7 @@ import (
 )
 
 func serveApp(dbClient *mongo.Database, logger zerolog.Logger) {
-	repositories := firebondMongo.NewRepositories(dbClient, logger)
+	repositories := firebondmongo.NewRepositories(dbClient, logger)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

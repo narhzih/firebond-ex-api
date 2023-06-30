@@ -1,6 +1,6 @@
 package repository
 
 type Repositories struct {
-	Demo   DemoRepository
-	Crypto CryptoRepository
+	Demo DemoRepository
+	Rate RateRepository
 }
