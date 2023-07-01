@@ -20,9 +20,9 @@ import (
 	"time"
 )
 
-func serveApp(dbClient *mongo.Database, logger zerolog.Logger) {
-	repositories := firebondmongo.NewRepositories(dbClient, logger)
-
+func serveApp(dbClient *mongo.Client, logger zerolog.Logger) {
+	mongoDatabase := dbClient.Database(os.Getenv("MONGO_DATABASE"))
+	repositories := firebondmongo.NewRepositories(mongoDatabase, logger)
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	app := internal.Application{
@@ -64,6 +64,12 @@ func serveApp(dbClient *mongo.Database, logger zerolog.Logger) {
 	// the request it is currently handling
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	defer func(dbClient *mongo.Client, ctx context.Context) {
+		err := dbClient.Disconnect(ctx)
+		if err != nil {
+			logger.Fatal().Msg(err.Error())
+		}
+	}(dbClient, ctx)
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Fatal().Msg(fmt.Sprintf("Server forced to shutdown: %s", err))
 	}

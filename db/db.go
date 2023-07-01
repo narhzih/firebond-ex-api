@@ -16,11 +16,10 @@ var (
 )
 
 type ConfigMongo struct {
-	MongoUri      string
-	MongoDatabase string
+	MongoUri string
 }
 
-func ConnectMongo(config ConfigMongo, logger zerolog.Logger) (*mongo.Database, error) {
+func ConnectMongo(config ConfigMongo, logger zerolog.Logger) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.MongoUri))
@@ -34,8 +33,7 @@ func ConnectMongo(config ConfigMongo, logger zerolog.Logger) (*mongo.Database, e
 		logger.Err(err).Msg("unable to ping database")
 		return nil, ErrCouldNotPingDatabase
 	}
-	mongoDatabase := mongoClient.Database(config.MongoDatabase)
-	return mongoDatabase, nil
+	return mongoClient, nil
 }
 
 func (c *ConfigMongo) buildMongoURI() string {

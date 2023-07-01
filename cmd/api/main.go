@@ -18,8 +18,7 @@ func main() {
 
 	// connect to mongo database
 	database, err := db.ConnectMongo(db.ConfigMongo{
-		MongoUri:      os.Getenv("MONGO_URI"),
-		MongoDatabase: os.Getenv("MONGO_DATABASE"),
+		MongoUri: os.Getenv("MONGO_URI"),
 	}, logger)
 	if err != nil {
 		os.Exit(1)
