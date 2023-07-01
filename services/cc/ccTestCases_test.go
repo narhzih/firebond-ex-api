@@ -15,4 +15,9 @@ var getSymbolToFiatRateTestCases = map[string]struct {
 		fiatSymbol:   "USD",
 		wantErr:      ErrNonExistentCoinPairError,
 	},
+	"report error for wrong fiat": {
+		cryptoSymbol: "BTC",
+		fiatSymbol:   "XXXX",
+		wantErr:      ErrNonExistentCoinPairError,
+	},
 }
