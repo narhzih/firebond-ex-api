@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+var (
+	ErrNonExistentCoinPairError        = fmt.Errorf("market does not exist for specified coin pair")
+	ConstMarketDoesNotExistForCoinPair = "cccagg_or_exchange market does not exist for this coin pair "
+)
+
 type ExchangeApiConn struct {
 	ApiKey string
 	ApiUrl string
@@ -75,6 +80,11 @@ func (e *ExchangeApiConn) GetSymbolToFiatRate(cryptoSymbol, fiatSymbol string) (
 		}
 
 		return returnedData, nil
+	}
+
+	// Check for the type of error returned
+	if strings.Contains(returnedData.Error.Message, ConstMarketDoesNotExistForCoinPair) {
+		return ExchangeApiResponse{}, ErrNonExistentCoinPairError
 	}
 	return ExchangeApiResponse{}, fmt.Errorf("%v", returnedData.Error.Message)
 }
