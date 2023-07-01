@@ -60,9 +60,10 @@ func (act rateActions) CreateCryptoToFiatRateData(data models.Rate) (models.Rate
 	return rate, nil
 }
 
-func (act rateActions) CreateFiatRateRecordForSymbol(symbol, fiatSymbol, fiatValue string) (models.Rate, error) {
+// CreateFiatRateRecordForSymbol creates a fiat rate record for a symbol and fiat. If it doesn't exist, it creates it.
+// however, if it already exists, you should just return it
+func (act rateActions) CreateFiatRateRecordForSymbol(symbol, fiatSymbol string, fiatValue float64) (models.Rate, error) {
 	//1. Check if this fiat is already in the fiat list
-
 	rate, err := act.GetCryptoRatesBySymbol(symbol)
 	if err != nil {
 		return models.Rate{}, err
@@ -73,6 +74,7 @@ func (act rateActions) CreateFiatRateRecordForSymbol(symbol, fiatSymbol, fiatVal
 			return rate, nil
 		}
 	}
+	// At this point, we know it's not there so we create a new one
 	rate.FiatPrices[fiatSymbol] = fiatValue
 	// update the value in db
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -81,12 +83,12 @@ func (act rateActions) CreateFiatRateRecordForSymbol(symbol, fiatSymbol, fiatVal
 	if err != nil {
 		return models.Rate{}, nil
 	}
-	// At this point, we know it's not there
+
 	return rate, nil
 }
 
+// GetFiatRateRecordForSymbol checks if a fiat rate exists on a symbol. If it does, it returns it, else, it throws an error
 func (act rateActions) GetFiatRateRecordForSymbol(symbol, fiatSymbol string) (models.Rate, error) {
-
 	rate, err := act.GetCryptoRatesBySymbol(symbol)
 	if err != nil {
 		return models.Rate{}, err
