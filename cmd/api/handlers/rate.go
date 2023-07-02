@@ -49,7 +49,9 @@ func (h rateHandler) GetSymbolToFiatRate(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Rates fetched successfully",
-		"rates":   rates,
+		"rates": map[string]interface{}{
+			fiat: rates.FiatPrices[fiat],
+		},
 	})
 }
 
@@ -64,7 +66,7 @@ func (h rateHandler) GetSymbolToFiatsRate(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Rates fetched successfully",
+		"message": "Rate fetched successfully",
 		"rates":   rates,
 	})
 }
@@ -96,7 +98,7 @@ func (h rateHandler) GetSymbolToFiatRateHistory(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Rates fetched successfully",
+		"message": "History fetched successfully",
 		"rates":   rates,
 	})
 }

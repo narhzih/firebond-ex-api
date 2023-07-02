@@ -70,7 +70,6 @@ func serveApp(dbClient *mongo.Client, logger zerolog.Logger) {
 				if err != nil {
 					logger.Err(err).Msg(fmt.Sprintf("an error occurred %v", err.Error()))
 				}
-
 				logger.Info().Msg("all went fine")
 			}
 		}
