@@ -36,7 +36,7 @@ func serveApp(dbClient *mongo.Client, logger zerolog.Logger) {
 	router := gin.Default()
 	router.Use(cors.Default())
 	rg := router.Group("/v1")
-	routes.BootRoutes(app, rg)
+	routes.BootRoutes(app, rg, logger)
 
 	// Start application server
 	appPort, err := strconv.Atoi(os.Getenv("PORT"))
@@ -55,6 +55,21 @@ func serveApp(dbClient *mongo.Client, logger zerolog.Logger) {
 			logger.Err(err).Msg("listen")
 		}
 	}()
+
+	// run a goroutine responsible for periodically updating the database
+	//ticker := time.NewTicker(5 * time.Second)
+	//endTickerChan := make(chan bool)
+	//go func() {
+	//	for {
+	//		select {
+	//		case <-endTickerChan:
+	//			return
+	//		case tm := <-ticker.C:
+	//			fmt.Println("Current time is:", tm)
+	//			// run code to periodically update database
+	//		}
+	//	}
+	//}()
 	<-ctx.Done()
 	stop()
 
@@ -73,5 +88,8 @@ func serveApp(dbClient *mongo.Client, logger zerolog.Logger) {
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Fatal().Msg(fmt.Sprintf("Server forced to shutdown: %s", err))
 	}
+	// end the goroutine that periodically updates the database
+	//ticker.Stop()
+	//endTickerChan <- true
 	logger.Info().Msg("exiting server")
 }

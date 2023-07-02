@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 )
 
@@ -101,4 +102,21 @@ func (act rateActions) GetFiatRateRecordForSymbol(symbol, fiatSymbol string) (mo
 	}
 
 	return models.Rate{}, ErrFiatRateToSymbolNotFound
+}
+
+func (act rateActions) UpSert(data models.Rate) error {
+	rate := models.Rate{
+		Symbol:     data.Symbol,
+		FiatPrices: data.FiatPrices,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	opts := options.Update().SetUpsert(true)
+	_, err := act.Collection.UpdateOne(ctx, bson.M{"symbol": rate.Symbol}, rate, opts)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

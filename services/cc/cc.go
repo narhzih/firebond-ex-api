@@ -73,6 +73,36 @@ func (e *ExchangeApiConn) GetSupportedCryptoToFiatPairsForBinance() (ExchangeApi
 
 }
 
+func (e *ExchangeApiConn) GetRatesForFsymsAndTsyms(fsym, tsyms string) (map[string]interface{}, error) {
+	reqUrl := fmt.Sprintf("%v/price?fsym=%v&tsyms=%v&api_key=%v", e.ApiUrl, fsym, tsyms, e.ApiKey)
+	res, err := e.doRequest(reqUrl, nil)
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+
+	var returnedData ExchangeApiFsymsToTsymsResponse
+	err = json.Unmarshal(body, &returnedData.Error)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+	err = json.Unmarshal(body, &returnedData.Error)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+
+	if len(strings.TrimSpace(returnedData.Error.Response)) == 0 {
+		// This means there's no error
+		err = json.Unmarshal(body, &returnedData.Data)
+		if err != nil {
+			return map[string]interface{}{}, err
+		}
+
+		return returnedData.Data, nil
+	}
+	return returnedData.Data, fmt.Errorf("%v", returnedData.Error.Message)
+}
+
 func (e *ExchangeApiConn) GetSymbolHistory() error {
 	//TODO implement me
 	panic("implement me")
