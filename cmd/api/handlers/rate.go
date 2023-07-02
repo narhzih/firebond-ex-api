@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"firebond-ex-api.com/cmd/api/helpers"
 	"firebond-ex-api.com/cmd/api/internal"
-	"fmt"
+	"firebond-ex-api.com/db/actions/firebondmongo"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"net/http"
+	"strings"
 )
 
 type RateHandler interface {
@@ -32,8 +32,15 @@ func (h rateHandler) GetSymbolToFiatRate(c *gin.Context) {
 	symbol := c.Param("crypto-symbol")
 	fiat := c.Param("fiat")
 	//rates, err := h.app.Repositories.Rate.GetFiatRateRecordForSymbol(symbol, fiat)
-	rates, err := h.app.Services.CC.GetRatesForFsymsAndTsyms(symbol, fiat)
+	rates, err := h.app.Repositories.Rate.GetFiatRateRecordForSymbol(symbol, fiat)
 	if err != nil {
+		if err == firebondmongo.ErrFiatRateToSymbolNotFound {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "An error occurred",
+				"err":     strings.ToUpper(symbol) + "-" + strings.ToUpper(fiat) + " coin pair is not supported on Binance Market",
+			})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "An error occurred",
 			"err":     err.Error(),
@@ -48,8 +55,7 @@ func (h rateHandler) GetSymbolToFiatRate(c *gin.Context) {
 
 func (h rateHandler) GetSymbolToFiatsRate(c *gin.Context) {
 	symbol := c.Param("crypto-symbol")
-	fiat := c.Param("fiat")
-	rates, err := h.app.Repositories.Rate.GetFiatRateRecordForSymbol(symbol, fiat)
+	rates, err := h.app.Repositories.Rate.GetCryptoRatesBySymbol(symbol)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "An error occurred",
@@ -64,7 +70,7 @@ func (h rateHandler) GetSymbolToFiatsRate(c *gin.Context) {
 }
 
 func (h rateHandler) GetAllSymbolsAndFiatsRate(c *gin.Context) {
-	rates, err := h.app.Services.CC.GetSupportedCryptoToFiatPairsForBinance()
+	rates, err := h.app.Repositories.Rate.GetAllRates()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "An error occurred",
@@ -72,11 +78,9 @@ func (h rateHandler) GetAllSymbolsAndFiatsRate(c *gin.Context) {
 		})
 		return
 	}
-	transformedRates := helpers.TransformExchangeApiResponseDataToRateModel(rates)
-	h.logger.Info().Msg(fmt.Sprintf("this is the length -%v", len(transformedRates)))
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Rates fetched successfully",
-		"rates":   transformedRates,
+		"rates":   rates,
 	})
 }
 
