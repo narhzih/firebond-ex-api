@@ -9,6 +9,7 @@ import (
 func setupRateRoutes(app internal.Application, routeGroup *gin.RouterGroup) {
 	h := handlers.NewRateHandler(app)
 	rateApi := routeGroup.Group("/rates")
+	rateApi.GET("/", h.GetAllSupportedCryptoToFiatRates)
 	rateApi.GET("/:crypto-symbol")
 	rateApi.GET("/:crypto-symbol/:fiat", h.GetRate)
 }

@@ -9,33 +9,10 @@ import (
 	"strings"
 )
 
-var (
-	ErrNonExistentCoinPairError        = fmt.Errorf("market does not exist for specified coin pair")
-	ConstMarketDoesNotExistForCoinPair = "cccagg_or_exchange market does not exist for this coin pair "
-)
-
 type ExchangeApiConn struct {
 	ApiKey string
 	ApiUrl string
 	Logger zerolog.Logger
-}
-
-type ExchangeApiError struct {
-	CoolDown   int64       `json:"CoolDown"`
-	Data       interface{} `json:"Data"`
-	HasWarning bool        `json:"HasWarning"`
-	Message    string      `json:"Message"`
-	RateLimit  interface{} `json:"RateLimit"`
-	Response   string      `json:"Response"`
-	Type       int64       `json:"Type"`
-}
-
-type ExchangeApiData interface {
-}
-
-type ExchangeApiResponse struct {
-	Error ExchangeApiError `json:"error"`
-	Data  ExchangeApiData  `json:"data"`
 }
 
 func NewExchangeApiConn(apiKey string, logger zerolog.Logger) *ExchangeApiConn {
@@ -46,32 +23,41 @@ func NewExchangeApiConn(apiKey string, logger zerolog.Logger) *ExchangeApiConn {
 	}
 }
 
-func (e *ExchangeApiConn) GetSymbolToFiatRate(cryptoSymbol, fiatSymbol string) (ExchangeApiResponse, error) {
-	reqUrl := fmt.Sprintf("%v/price?fsym=%v&tsyms=%v&api_key=%v", e.ApiUrl, cryptoSymbol, fiatSymbol, e.ApiKey)
+func (e *ExchangeApiConn) doRequest(reqUrl string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodGet, reqUrl, nil)
 	if err != nil {
 		e.Logger.Err(err).Msg("unable to build request")
-		return ExchangeApiResponse{}, err
+		return nil, err
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		e.Logger.Err(err).Msg("Unable to fetch response while building request")
+		e.Logger.Err(err).Msg("Unable to fetch response after building request")
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (e *ExchangeApiConn) GetSupportedCryptoToFiatPairsForBinance() (ExchangeApiResponse, error) {
+	reqUrl := fmt.Sprintf("%v/v4/all/exchanges?e=Binance&api_key=%v", e.ApiUrl, e.ApiKey)
+	res, err := e.doRequest(reqUrl, nil)
+	if err != nil {
 		return ExchangeApiResponse{}, err
 	}
+
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return ExchangeApiResponse{}, err
 	}
 
-	// first check for error
 	var returnedData ExchangeApiResponse
-	err = json.Unmarshal(body, &returnedData.Error)
+	err = json.Unmarshal(body, &returnedData)
 	if err != nil {
 		return ExchangeApiResponse{}, err
 	}
 
-	if len(strings.TrimSpace(returnedData.Error.Response)) == 0 {
+	if strings.TrimSpace(returnedData.Response) == "Success" {
 		// This means there wasn't any error in the data
 		// now proceed to parse the data
 		err = json.Unmarshal(body, &returnedData.Data)
@@ -81,17 +67,10 @@ func (e *ExchangeApiConn) GetSymbolToFiatRate(cryptoSymbol, fiatSymbol string) (
 
 		return returnedData, nil
 	}
+	//return ExchangeApiResponse{}, fmt.Errorf("%v", returnedData.Error.Message)
+	e.Logger.Info().Msg(fmt.Sprintf("%v", returnedData.Data))
+	return ExchangeApiResponse{}, fmt.Errorf("%v", returnedData.Message)
 
-	// Check for the type of error returned
-	if strings.Contains(returnedData.Error.Message, ConstMarketDoesNotExistForCoinPair) {
-		return ExchangeApiResponse{}, ErrNonExistentCoinPairError
-	}
-	return ExchangeApiResponse{}, fmt.Errorf("%v", returnedData.Error.Message)
-}
-
-func (e *ExchangeApiConn) GetSymbolRateForSupportedFiats() error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (e *ExchangeApiConn) GetSymbolHistory() error {

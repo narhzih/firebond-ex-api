@@ -22,16 +22,14 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestExchangeApiConn_GetSymbolToFiatRate(t *testing.T) {
-
-	for name, tc := range getSymbolToFiatRateTestCases {
+func TestExchangeApiConn_GetSupportedCryptoToFiatPairsForBinance(t *testing.T) {
+	for name, tc := range getSupportedCryptoToFiatPairsForBinanceTestCases {
 		t.Run(name, func(t *testing.T) {
-			gotRes, gotErr := exApiConn.GetSymbolToFiatRate(tc.cryptoSymbol, tc.fiatSymbol)
+			gotRes, gotErr := exApiConn.GetSupportedCryptoToFiatPairsForBinance()
 			assert.Equal(t, tc.wantErr, gotErr)
 			if gotErr == nil {
-				assert.Equal(t, "", gotRes.Error.Response)
+				assert.Equal(t, "Success", gotRes.Response)
 			}
 		})
 	}
-
 }
