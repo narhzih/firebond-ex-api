@@ -76,6 +76,9 @@ func (e *ExchangeApiConn) GetSupportedCryptoToFiatPairsForBinance() (ExchangeApi
 func (e *ExchangeApiConn) GetRatesForFsymsAndTsyms(fsym, tsyms string) (map[string]interface{}, error) {
 	reqUrl := fmt.Sprintf("%v/price?fsym=%v&tsyms=%v&api_key=%v", e.ApiUrl, fsym, tsyms, e.ApiKey)
 	res, err := e.doRequest(reqUrl, nil)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return map[string]interface{}{}, err

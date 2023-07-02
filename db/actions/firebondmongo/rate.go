@@ -53,7 +53,6 @@ func (act rateActions) GetFiatRateRecordForSymbol(symbol, fiatSymbol string) (mo
 	}
 	for key, _ := range rate.FiatPrices {
 		if key == fiatSymbol {
-			act.Logger.Info().Msg("found the rate we're looking for ")
 			return rate, nil
 		}
 	}

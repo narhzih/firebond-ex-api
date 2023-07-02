@@ -57,19 +57,24 @@ func serveApp(dbClient *mongo.Client, logger zerolog.Logger) {
 	}()
 
 	// run a goroutine responsible for periodically updating the database
-	//ticker := time.NewTicker(5 * time.Second)
-	//endTickerChan := make(chan bool)
-	//go func() {
-	//	for {
-	//		select {
-	//		case <-endTickerChan:
-	//			return
-	//		case tm := <-ticker.C:
-	//			fmt.Println("Current time is:", tm)
-	//			// run code to periodically update database
-	//		}
-	//	}
-	//}()
+	ticker := time.NewTicker(24 * time.Hour)
+	endTickerChan := make(chan bool)
+	// because of rate limiting issues on crypto compare API, this only runs once every 24 hours
+	go func() {
+		for {
+			select {
+			case <-endTickerChan:
+				return
+			case _ = <-ticker.C:
+				err := periodicallyUpdateDatabase(app)
+				if err != nil {
+					logger.Err(err).Msg(fmt.Sprintf("an error occurred %v", err.Error()))
+				}
+
+				logger.Info().Msg("all went fine")
+			}
+		}
+	}()
 	<-ctx.Done()
 	stop()
 
@@ -89,7 +94,7 @@ func serveApp(dbClient *mongo.Client, logger zerolog.Logger) {
 		logger.Fatal().Msg(fmt.Sprintf("Server forced to shutdown: %s", err))
 	}
 	// end the goroutine that periodically updates the database
-	//ticker.Stop()
-	//endTickerChan <- true
+	ticker.Stop()
+	endTickerChan <- true
 	logger.Info().Msg("exiting server")
 }
