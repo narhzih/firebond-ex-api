@@ -81,3 +81,18 @@ func TestRateActions_GetFiatRateRecordForSymbol(t *testing.T) {
 		})
 	}
 }
+
+func TestRateActions_UpSert(t *testing.T) {
+	if testing.Short() {
+		t.Skip(skipMessage)
+	}
+
+	for name, tc := range upsertTestCases {
+		t.Run(name, func(t *testing.T) {
+			db := newTestDb(t)
+			ra := NewRateActions(db, logger)
+			gotErr := ra.UpSert(tc.inputRate)
+			assert.Equal(t, tc.wantErr, gotErr)
+		})
+	}
+}

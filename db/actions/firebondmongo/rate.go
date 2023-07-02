@@ -104,6 +104,7 @@ func (act rateActions) GetFiatRateRecordForSymbol(symbol, fiatSymbol string) (mo
 	return models.Rate{}, ErrFiatRateToSymbolNotFound
 }
 
+// UpSert Tries to create an exchange rate record or update it if  it already exists
 func (act rateActions) UpSert(data models.Rate) error {
 	rate := models.Rate{
 		Symbol:     data.Symbol,
@@ -113,7 +114,7 @@ func (act rateActions) UpSert(data models.Rate) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	opts := options.Update().SetUpsert(true)
-	_, err := act.Collection.UpdateOne(ctx, bson.M{"symbol": rate.Symbol}, rate, opts)
+	_, err := act.Collection.UpdateOne(ctx, bson.M{"symbol": rate.Symbol}, bson.M{"$set": bson.M{"symbol": rate.Symbol, "fiatPrices": rate.FiatPrices}}, opts)
 	if err != nil {
 		return err
 	}

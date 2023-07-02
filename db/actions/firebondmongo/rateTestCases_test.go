@@ -127,3 +127,48 @@ var getFiatRateRecordForSymbolTestCases = map[string]struct {
 		wantErr:         ErrFiatRateToSymbolNotFound,
 	},
 }
+
+var upsertTestCases = map[string]struct {
+	inputRate models.Rate
+	wantRate  models.Rate
+	wantErr   error
+}{
+	"successfully creates a new rate record that doesn't already exist": {
+		inputRate: models.Rate{
+			Symbol: "ATX",
+			FiatPrices: map[string]interface{}{
+				"USD": 30000.5,
+				"GBP": 38000.0,
+				"EUR": 35000.0,
+			},
+		},
+		wantRate: models.Rate{
+			Symbol: "ATX",
+			FiatPrices: map[string]interface{}{
+				"USD": 30000.5,
+				"GBP": 38000.0,
+				"EUR": 35000.0,
+			},
+		},
+		wantErr: nil,
+	},
+	"successfully updates a doucument that already exists": {
+		inputRate: models.Rate{
+			Symbol: "BTC",
+			FiatPrices: map[string]interface{}{
+				"USD": 38000.5,
+				"GBP": 38000.0,
+				"EUR": 35000.0,
+			},
+		},
+		wantRate: models.Rate{
+			Symbol: "BTC",
+			FiatPrices: map[string]interface{}{
+				"USD": 38000.5,
+				"GBP": 38000.0,
+				"EUR": 35000.0,
+			},
+		},
+		wantErr: nil,
+	},
+}
