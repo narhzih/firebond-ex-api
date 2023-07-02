@@ -9,3 +9,15 @@ var getSupportedCryptoToFiatPairsForBinanceTestCases = map[string]struct {
 		wantErr: nil,
 	},
 }
+
+var getRatesForFsymsAndTsymsTestCases = map[string]struct {
+	inputFsyms string
+	inputTsyms string
+	wantErr    error
+}{
+	"successfully fetched fsyms and tsyms data": {
+		inputFsyms: "BTC",
+		inputTsyms: "EUR",
+		wantErr:    nil,
+	},
+}

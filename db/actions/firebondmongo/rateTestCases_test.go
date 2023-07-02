@@ -152,7 +152,7 @@ var upsertTestCases = map[string]struct {
 		},
 		wantErr: nil,
 	},
-	"successfully updates a doucument that already exists": {
+	"successfully updates a document that already exists": {
 		inputRate: models.Rate{
 			Symbol: "BTC",
 			FiatPrices: map[string]interface{}{

@@ -33,3 +33,17 @@ func TestExchangeApiConn_GetSupportedCryptoToFiatPairsForBinance(t *testing.T) {
 		})
 	}
 }
+
+func TestExchangeApiConn_GetRatesForFsymsAndTsyms(t *testing.T) {
+	for name, tc := range getRatesForFsymsAndTsymsTestCases {
+		t.Run(name, func(t *testing.T) {
+			gotRes, gotErr := exApiConn.GetRatesForFsymsAndTsyms(tc.inputFsyms, tc.inputTsyms)
+			assert.Equal(t, tc.wantErr, gotErr)
+			if gotErr == nil {
+				for fiat, _ := range gotRes {
+					assert.Equal(t, tc.inputTsyms, fiat)
+				}
+			}
+		})
+	}
+}
