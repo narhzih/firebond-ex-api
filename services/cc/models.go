@@ -1,5 +1,9 @@
 package cc
 
+import "time"
+
+// ExchangeApiResponse is the struct that represents a response to
+// https://min-api.cryptocompare.com/data/v4/all/exchange?e=Binance
 type ExchangeApiResponse struct {
 	CoolDown int64 `json:"CoolDown"`
 	Data     struct {
@@ -25,6 +29,8 @@ type ExchangeApiResponse struct {
 	Type       int64       `json:"Type"`
 }
 
+// ExchangeApiFsymsToTsymsError describes the error data returned for
+// https://
 type ExchangeApiFsymsToTsymsError struct {
 	CoolDown   int64       `json:"CoolDown"`
 	HasWarning bool        `json:"HasWarning"`
@@ -40,4 +46,26 @@ type ExchangeApiFsymsToTsymsData struct {
 type ExchangeApiFsymsToTsymsResponse struct {
 	Error ExchangeApiFsymsToTsymsError `json:"Error"`
 	Data  map[string]interface{}       `json:"Data"`
+}
+
+type ExchangeApiHistoryResponse struct {
+	HasWarning bool                           `json:"HasWarning"`
+	Message    string                         `json:"Message"`
+	RateLimit  interface{}                    `json:"RateLimit"`
+	Response   string                         `json:"Response"`
+	Type       int64                          `json:"Type"`
+	Data       ExchangeApiHistoryResponseData `json:"Data"`
+}
+type ExchangeApiHistoryResponseData struct {
+	Aggregated bool                               `json:"Aggregated"`
+	Data       []ExchangeApiHistoryResponseDataSH `json:"Data"`
+}
+
+type ExchangeApiHistoryResponseDataSH struct {
+	Close        float64   `json:"close"`
+	High         float64   `json:"high"`
+	Low          float64   `json:"low"`
+	Open         float64   `json:"open"`
+	Time         int64     `json:"time"`
+	ReadableTime time.Time `json:"readableTime"`
 }

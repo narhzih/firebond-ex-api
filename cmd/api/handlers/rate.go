@@ -89,7 +89,7 @@ func (h rateHandler) GetAllSymbolsAndFiatsRate(c *gin.Context) {
 func (h rateHandler) GetSymbolToFiatRateHistory(c *gin.Context) {
 	symbol := c.Param("crypto-symbol")
 	fiat := c.Param("fiat")
-	rates, err := h.app.Repositories.Rate.GetFiatRateRecordForSymbol(symbol, fiat)
+	history, err := h.app.Services.CC.GetSymbolToFiatHistory(symbol, fiat)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "An error occurred",
@@ -98,7 +98,7 @@ func (h rateHandler) GetSymbolToFiatRateHistory(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "History fetched successfully",
-		"rates":   rates,
+		"message": "History for " + symbol + "-" + fiat + " coin pair for the past 24 hours",
+		"history": history.Data.Data,
 	})
 }

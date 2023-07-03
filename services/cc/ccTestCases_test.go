@@ -21,3 +21,20 @@ var getRatesForFsymsAndTsymsTestCases = map[string]struct {
 		wantErr:    nil,
 	},
 }
+
+var getSymbolToFiatHistoryTestCases = map[string]struct {
+	inputSymbol string
+	inputFiat   string
+	wantErr     error
+}{
+	"successfully fetched history for coin pair": {
+		inputSymbol: "BTC",
+		inputFiat:   "EUR",
+		wantErr:     nil,
+	},
+	"return error for incompatible coin-pair": {
+		inputSymbol: "BTC",
+		inputFiat:   "USD",
+		wantErr:     ExchangeApiErrIncompatibleCoinPair,
+	},
+}
