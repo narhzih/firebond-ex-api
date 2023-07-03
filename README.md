@@ -6,7 +6,8 @@ Because of rate-limiting policies by crypto-compare, the data in the database is
 
 
 # Endpoints 
-Postman [documentation can be found here](https://google.com)
+Postman [documentation can be found here](https://documenter.getpostman.com/view/8405540/2s93zCZg9V) ||
+Deployed [API can be found here](https://firebond-ex-api.fly.dev)
 - /v1/rates - fetches all rates 
 - /v1/rates/:crypto-symbol - fetches all exchange rates for the specified symbol
 - /v1/rates/:crypto-symbol/:fiat - fetches the exchange rate between the specified symbol and fiat 
