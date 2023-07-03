@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"firebond-ex-api.com/cmd/api/internal"
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,7 @@ func setupBalanceRoutes(app internal.Application, routeGroup *gin.RouterGroup, l
 			return
 		}
 		address := common.HexToAddress(c.Param("address"))
+		logger.Info().Msg(fmt.Sprintf("hex value is %v", address))
 		addressBalance, err := client.BalanceAt(context.TODO(), address, nil)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{

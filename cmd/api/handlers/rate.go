@@ -59,6 +59,13 @@ func (h rateHandler) GetSymbolToFiatsRate(c *gin.Context) {
 	symbol := c.Param("crypto-symbol")
 	rates, err := h.app.Repositories.Rate.GetCryptoRatesBySymbol(symbol)
 	if err != nil {
+		if err == firebondmongo.ErrNoDocuments {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "An error occurred",
+				"err":     "No exchange record for this symbol. Check that you entered the correct symbol, or try again in 10 minutes",
+			})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "An error occurred",
 			"err":     err.Error(),
