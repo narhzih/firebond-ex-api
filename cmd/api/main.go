@@ -10,7 +10,13 @@ import (
 func main() {
 	logger := zerolog.New(os.Stderr).With().Caller().Timestamp().Logger()
 
-	err := godotenv.Load(".env")
+	appEnv := os.Getenv("APP_ENV")
+	var err error
+	// only try to load env on dev
+	if appEnv == "dev" {
+		logger.Info().Msg("Loading dev env")
+		err = godotenv.Load(".env")
+	}
 	if err != nil {
 		logger.Err(err).Msg("unable to load environment files")
 		os.Exit(1)

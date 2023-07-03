@@ -21,9 +21,9 @@ Postman [documentation can be found here](https://google.com)
 - Clone the project and run `go mod tidy` in the project root folder to install packages 
 - Create a .env file in the project root folder by copying the .env.example file and rename it to have a base env to work with. In the project root folder run `cp .env.example .env`
 - Add your values to the .env file and you should be good to go. 
-- To start up the api, you can run the api directly by running `go run ./cmd/api` at the project root folder or build it first then run the build using the following commands
+- To start up the api, you can run the api directly by running `APP_ENV=dev go run ./cmd/api` at the project root folder or build it first then run the build using the following commands
   - `go build -o=./bin/api ./cmd/api`
-  - `./bin/api`
+  - `APP_ENV=dev ./bin/api`
 
 # Project structure 
 ## CMD/API 
@@ -34,7 +34,7 @@ This is folder where external services that can be re-used by different processe
 This folder contains the database integrations. The reason for separating the db this way is to allow for the easy integration of other databases or overriding
 
 # Testing 
-- The project contains e2e tests that can be found in /cmp/api/tests folder to test the APIs
+- The project contains e2e tests that can be found in /cmp/api/test folder to test the APIs
 - Tests for db can be found in the /db folder 
 - Tests for each service can be found in /services folder 
 - All test uses an in-memory database [memongo](https://github.com/tryvium-travels/memongo) so as to relieve the stress of having to create a separate test database
