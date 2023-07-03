@@ -24,5 +24,6 @@ func BootRoutes(app internal.Application, routeGroup *gin.RouterGroup, logger ze
 			},
 		})
 	})
+	setupBalanceRoutes(app, routeGroup, logger)
 	setupRateRoutes(app, routeGroup, logger)
 }
