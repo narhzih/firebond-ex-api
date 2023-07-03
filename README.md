@@ -1,7 +1,9 @@
 # Introduction 
 This API functions as a tool to use to retrieve the exchange rates between a crypto symbol and another symbol (crypto or fiat). 
 It uses the Binance market exchange rates so, there might be some exchange rates that does exist but isn't covered by the API. 
-All exchange rates are fetched from the CryptoCompareAPI. 
+All exchange rates are fetched from the [CryptoCompareAPI](https://min-api.cryptocompare.com/documentation). 
+Because of rate-limiting policies by crypto-compare, the data in the database is only updated once in 24 hours)
+
 
 # Endpoints 
 Postman [documentation can be found here](https://google.com)
